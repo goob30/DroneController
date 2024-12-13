@@ -18,7 +18,7 @@
                 <Button Content="Click yeah" HorizontalAlignment="Center" VerticalAlignment="Bottom" Click="btnClick"/>
                 
                 
-                <StackPanel x:Name="telemStackPanel" Margin="1140,0,0,0">
+                <StackPanel x:Name="telemStackPanel" Margin="1120,0,0,0">
                     <Label FontSize="18" Name="zoomLabel" Content="ZOOM 1X" Foreground="White" HorizontalContentAlignment="Right"/>
                     <Label FontSize="18" Name="brtLabel" Content="BRIGHTNESS 1" Foreground="White" HorizontalContentAlignment="Right"/>
                     <Label FontSize="18" Name="modeLabel" Content="MODE NORMAL" Foreground="White" HorizontalContentAlignment="Right"/>

@@ -25,24 +25,11 @@ namespace DroneController
         {
             InitializeComponent();
             _cameraFeed = new CameraFeed();
+            UpdateCameraSignalStatus();
         }
 
         private void UpdateCameraSignalStatus()
         {
-            // You could encapsulate visibility logic here
-            if (_cameraFeed.feedOnline)
-            {
-                NoSigGrid.Visibility = Visibility.Hidden;
-            }
-            else
-            {
-                NoSigGrid.Visibility = Visibility.Visible;
-            }
-        }
-
-        private void btnClick(object sender, RoutedEventArgs e)
-        {
-            // Toggle camera feed status
             if (_cameraFeed.feedOnline)
             {
                 statusLabel.Content = "Telemetry Offline";
@@ -52,6 +39,11 @@ namespace DroneController
                 // Handle case where feed is offline
                 statusLabel.Content = "Telemetry, Video Offline";
             }
+        }
+
+        private void btnClick(object sender, RoutedEventArgs e)
+        {
+            //put shit here and dont forget it this time
             
         }
     }

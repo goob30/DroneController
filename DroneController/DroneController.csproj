@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="img\droneCamOutlines.png" />
+    <None Remove="img\grid.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Device.Gpio" Version="3.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="img\droneCamOutlines.png" />
+    <Resource Include="img\grid.png" />
+  </ItemGroup>
+
+</Project>

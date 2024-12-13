@@ -1,0 +1,41 @@
+﻿<Window x:Class="DroneController.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DroneController"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="720" Width="1280">
+    <Grid>
+        <Grid Name="CameraFeed" Visibility="Visible">
+            <Grid Name="NoSigGrid">
+                <Rectangle Fill="#FF6D6D6D"/>
+                <Image Width="1280" Source="/img/droneCamOutlines.png" Stretch="Uniform"/>
+                <Label Content="NO SIGNAL" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                FontSize="72" FontFamily="Arial" Foreground="White"/>
+                <Label Name="statusLabel" Content="#" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                FontSize="14" FontFamily="Arial" Foreground="White" Margin="0,100,0,0"/>
+                <Button Content="Click yeah" HorizontalAlignment="Center" VerticalAlignment="Bottom" Click="btnClick"/>
+                
+                
+                <StackPanel x:Name="telemStackPanel" Margin="1140,0,0,0">
+                    <Label FontSize="18" Name="zoomLabel" Content="ZOOM 1X" Foreground="White" HorizontalContentAlignment="Right"/>
+                    <Label FontSize="18" Name="brtLabel" Content="BRIGHTNESS 1" Foreground="White" HorizontalContentAlignment="Right"/>
+                    <Label FontSize="18" Name="modeLabel" Content="MODE NORMAL" Foreground="White" HorizontalContentAlignment="Right"/>
+                    <Label FontSize="18" Name="spotlightLabel" Content="SPOTLIGHT OFF" Foreground="White" HorizontalContentAlignment="Right"/>
+                    <Label FontSize="18" Name="controlXLabel" Content="X: 0" Foreground="White" HorizontalContentAlignment="Right"/>
+                    <Label FontSize="18" Name="controlYLabel" Content="Y: 0" Foreground="White" HorizontalContentAlignment="Right"/>
+                    <Label FontSize="18" Name="controlZLabel" Content="Z: 0" Foreground="White" HorizontalContentAlignment="Right"/>
+
+                </StackPanel>
+            </Grid>
+            
+        </Grid>
+        <Grid x:Name="MenuGrid">
+            
+        </Grid>
+        
+
+
+    </Grid>
+</Window>

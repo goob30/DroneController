@@ -26,11 +26,14 @@ namespace DroneController
         private JoyInput _joyInput;
         public double camZoom = 1;
         private DispatcherTimer _timer;
+        private ScaleTransform _scaleTransform;
         
         public MainWindow()
         {
             InitializeComponent();
             _cameraFeed = new CameraFeed();
+
+            _scaleTransform = cameraFeed.RenderTransform as ScaleTransform;
 
             _joyInput = new JoyInput();
             Task.Run(() => PollJoystick());
@@ -43,6 +46,13 @@ namespace DroneController
         private async void UpdateFrame(object sender, EventArgs e)
         {
             cameraFeed.Source = _cameraFeed.GetFrame();
+            var frame = await Task.Run(() => _cameraFeed.GetFrame());
+
+            if(_scaleTransform != null)
+            {
+                _scaleTransform.ScaleX = camZoom;
+                _scaleTransform.ScaleY = camZoom;
+            }
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -64,26 +74,30 @@ namespace DroneController
                     var inputs = _joyInput.GetJoystickInputs();
                     if (inputs != null)
                     {
-
                         await Dispatcher.InvokeAsync(() =>
                         {
-                            
                             controlXLabel.Content = $"X: {inputs["X"]}";
                             controlYLabel.Content = $"Y: {inputs["Y"]}";
                             controlZLabel.Content = $"Z: {inputs["Z"]}";
+                            hatLabel.Content = $" HAT {inputs["camPOV"]}";
 
-                            if(inputs.ContainsKey("camPOV") && inputs["camPOV"] != -1)
+                            if (inputs.ContainsKey("camPOV"))
                             {
                                 var povAngle = inputs["camPOV"];
+
+                                // Skip if POV is not being used (i.e., value is -1)
+                                if (povAngle == -1)
+                                    return;
+
                                 DateTime now = DateTime.Now;
 
-                                //POV change code
-                                if((now - lastZoomChangeTime).TotalMilliseconds >= zoomChangeDelay)
+                                // POV change code
+                                if ((now - lastZoomChangeTime).TotalMilliseconds >= zoomChangeDelay)
                                 {
                                     if (povAngle == 0)
                                     {
                                         camZoom = Math.Min(camZoom + 0.5, 3);
-                                        zoomLabel.Content = $"ZOOM {camzZoom}X";
+                                        zoomLabel.Content = $"ZOOM {camZoom}X";
                                         lastZoomChangeTime = now;
                                     }
                                     else if (povAngle == 18000)
@@ -92,27 +106,23 @@ namespace DroneController
                                         zoomLabel.Content = $"ZOOM {camZoom}X";
                                         lastZoomChangeTime = now;
                                     }
-                                }   
-                                
+                                }
                             }
                         });
                     }
                 }
                 catch (Exception ex)
                 {
-
                     statusLabel.Content = ($"Error polling joystick: {ex.Message}");
-
                 }
 
                 await Task.Delay(50);
             }
         }
 
-        private void btnClick(object sender, RoutedEventArgs e)
-        {
-            statusLabel.Content = camZoom;
-            
-        }
+
+
+
+
     }
 }

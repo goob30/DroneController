@@ -19,8 +19,9 @@ namespace GPIO
         {
             _videoCapture = new VideoCapture(1);
             _frame = new Mat();
-            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameWidth, 1920);
-            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameWidth, 1080);
+            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameWidth, 640); // Reduce resolution
+            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameHeight, 480); // Reduce resolution
+            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.Fps, 15);
             if (!_videoCapture.IsOpened())
             {
                 throw new Exception("Unable to access webcam");
@@ -43,6 +44,7 @@ namespace GPIO
             _frame.Dispose();
         }
     }
+
 
     public class FltControl
     {
@@ -94,9 +96,9 @@ namespace GPIO
             {
                 { "X", state.X },
                 { "Y", state.Y },
-                { "Z", state.RotationX },
-                { "camPOV", state.PointOfViewControllers[0] },
-                { "camControl", state.PointOfViewControllers[1] },
+                { "Z", state.RotationZ },
+                { "camControl", state.PointOfViewControllers[0] },
+                { "camPOV", state.PointOfViewControllers[1] },
             };
 
             return inputs;

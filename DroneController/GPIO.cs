@@ -18,7 +18,7 @@ namespace GPIO
 
         public CameraFeed()
         {
-            _videoCapture = new VideoCapture(1);
+            _videoCapture = new VideoCapture(1); //Change value as required for camera
             _frame = new Mat();
             _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameWidth, 1920); // Reduce resolution
             _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameHeight, 1080); // Reduce resolution

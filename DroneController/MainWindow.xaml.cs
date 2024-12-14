@@ -53,6 +53,10 @@ namespace DroneController
                 _scaleTransform.ScaleX = camZoom;
                 _scaleTransform.ScaleY = camZoom;
             }
+            if(_cameraFeed.feedOnline == false)
+            {
+                NoSigGrid.Visibility = Visibility.Visible;
+            }
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -109,6 +113,10 @@ namespace DroneController
                                 }
                             }
                         });
+                    }
+                    else
+                    {
+                        statusLabel.Content = _joyInput.JoyStatusString;
                     }
                 }
                 catch (Exception ex)

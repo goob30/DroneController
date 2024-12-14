@@ -14,17 +14,21 @@ namespace GPIO
     {
         private VideoCapture _videoCapture;
         private Mat _frame;
+        public bool feedOnline;
 
         public CameraFeed()
         {
-            _videoCapture = new VideoCapture(1);
+            _videoCapture = new VideoCapture(0);
             _frame = new Mat();
-            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameWidth, 640); // Reduce resolution
-            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameHeight, 480); // Reduce resolution
-            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.Fps, 15);
+            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameWidth, 1920); // Reduce resolution
+            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameHeight, 1080); // Reduce resolution
+            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.Fps, 30);
+            feedOnline = true;
             if (!_videoCapture.IsOpened())
             {
                 throw new Exception("Unable to access webcam");
+                feedOnline = false;
+
             }
         }
 
@@ -33,7 +37,11 @@ namespace GPIO
             _videoCapture.Read(_frame);
             if (_frame.Empty())
             {
-                throw new Exception("Failed to capture frame");
+                feedOnline = false;
+            }
+            else
+            {
+                feedOnline = true;
             }
             return _frame.ToBitmapSource();
         }
@@ -70,12 +78,14 @@ namespace GPIO
             foreach (var deviceInstance in _directInput.GetDevices(DeviceType.Joystick, DeviceEnumerationFlags.AttachedOnly))
             {
                 joystickGuid = deviceInstance.InstanceGuid;
+                JoyStatusString = "";
                 break;
             }
 
             if (joystickGuid == Guid.Empty)
             {
                 JoyStatusString = "No Joystick Found";
+                
                 return;
             }
 
@@ -97,8 +107,8 @@ namespace GPIO
                 { "X", state.X },
                 { "Y", state.Y },
                 { "Z", state.RotationZ },
-                { "camControl", state.PointOfViewControllers[0] },
-                { "camPOV", state.PointOfViewControllers[1] },
+                { "camControl", state.PointOfViewControllers[1] },
+                { "camPOV", state.PointOfViewControllers[0] },
             };
 
             return inputs;

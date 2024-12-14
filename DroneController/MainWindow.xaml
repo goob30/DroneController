@@ -21,8 +21,7 @@
                 
                 <Label Content="NO SIGNAL" VerticalAlignment="Center" HorizontalAlignment="Center" 
                 FontSize="72" FontFamily="Arial" Foreground="White"/>
-                <Label Name="statusLabel" Content="#" VerticalAlignment="Center" HorizontalAlignment="Center" 
-                FontSize="14" FontFamily="Arial" Foreground="White" Margin="0,100,0,0"/>
+                
                 <Button Content="Click yeah" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
             </Grid>
             
@@ -40,6 +39,8 @@
 
         </Grid>
         <Image Width="1280" Source="/img/droneCamOutlines.png" Stretch="Uniform"/>
+        <Label Name="statusLabel" Content="" VerticalAlignment="Center" HorizontalAlignment="Center" 
+        FontSize="14" FontFamily="Arial" Foreground="White" Margin="0,100,0,0"/>
         <Grid x:Name="MenuGrid">
             
         </Grid>

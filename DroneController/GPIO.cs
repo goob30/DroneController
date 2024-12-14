@@ -3,88 +3,44 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Drawing;
 using System.Device.Gpio;
-using System.Threading.Tasks;
 using SharpDX.DirectInput;
-using Emgu.CV;
-using Emgu.CV.CvEnum;
-using Emgu.CV.Structure;
-using System.Windows.Media;
+using OpenCvSharp;
+using OpenCvSharp.WpfExtensions;
 using System.Windows.Media.Imaging;
-using System.Drawing.Imaging;
-using System.Windows.Threading;
-using System.Windows;
 
 namespace GPIO
 {
     public class CameraFeed
     {
         private VideoCapture _videoCapture;
-        private DispatcherTimer _timer;
-        private WriteableBitmap _writeableBitmap;
-        private bool _isRunning;
+        private Mat _frame;
 
         public CameraFeed()
         {
-            try
+            _videoCapture = new VideoCapture(1);
+            _frame = new Mat();
+            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameWidth, 1920);
+            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameWidth, 1080);
+            if (!_videoCapture.IsOpened())
             {
-                _videoCapture = new VideoCapture(0); // Open default camera
-                if (!_videoCapture.IsOpened)
-                {
-                    MessageBox.Show("Unable to access the camera!");
-                    return;
-                }
-
-                // Initialize timer to update frames every 30 ms (~33 FPS)
-                _timer = new DispatcherTimer
-                {
-                    Interval = TimeSpan.FromMilliseconds(30)
-                };
-                _timer.Tick += Timer_Tick;
-
-                _isRunning = true;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error initializing webcam: {ex.Message}");
+                throw new Exception("Unable to access webcam");
             }
         }
 
-        public WriteableBitmap GetWriteableBitmap(int width, int height)
+        public BitmapSource GetFrame()
         {
-            // Initialize WriteableBitmap for display
-            _writeableBitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgr24, null);
-            return _writeableBitmap;
-        }
-
-        private void Timer_Tick(object sender, EventArgs e)
-        {
-            // Capture frame from camera
-            Mat frame = new Mat();
-            _videoCapture.Read(frame);
-
-            if (!frame.IsEmpty)
+            _videoCapture.Read(_frame);
+            if (_frame.Empty())
             {
-                // Convert Mat frame to byte array
-                byte[] pixels = frame.ToImage<Bgr, byte>(true).Bytes;
-
-
-                // Update WriteableBitmap with new frame
-                _writeableBitmap.WritePixels(new Int32Rect(0, 0, frame.Width, frame.Height),
-                                              pixels, frame.Width * 3, 0);
+                throw new Exception("Failed to capture frame");
             }
+            return _frame.ToBitmapSource();
         }
 
-        public void Start()
+        public void Dispose()
         {
-            // Start the timer to capture frames
-            _timer.Start();
-        }
-
-        public void Stop()
-        {
-            // Stop the camera feed and release resources
-            _timer.Stop();
             _videoCapture.Release();
+            _frame.Dispose();
         }
     }
 
@@ -133,12 +89,14 @@ namespace GPIO
             _joystick.Poll();
             var state = _joystick.GetCurrentState();
 
+            //Input definitions
             var inputs = new Dictionary<string, int>
             {
                 { "X", state.X },
                 { "Y", state.Y },
                 { "Z", state.RotationX },
                 { "camPOV", state.PointOfViewControllers[0] },
+                { "camControl", state.PointOfViewControllers[1] },
             };
 
             return inputs;

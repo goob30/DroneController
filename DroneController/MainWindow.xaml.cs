@@ -10,8 +10,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using System;
 using GPIO;
+using System.ComponentModel;
 
 namespace DroneController
 {
@@ -22,16 +24,32 @@ namespace DroneController
     {
         private CameraFeed _cameraFeed;
         private JoyInput _joyInput;
-        public int camZoom = 1;
+        public double camZoom = 1;
+        private DispatcherTimer _timer;
         
         public MainWindow()
         {
-
             InitializeComponent();
             _cameraFeed = new CameraFeed();
+
             _joyInput = new JoyInput();
             Task.Run(() => PollJoystick());
-            UpdateCameraSignalStatus();
+
+            _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(30) };
+            _timer.Tick += UpdateFrame;
+            _timer.Start();
+        }
+
+        private async void UpdateFrame(object sender, EventArgs e)
+        {
+            cameraFeed.Source = _cameraFeed.GetFrame();
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            _timer.Stop();
+            _cameraFeed.Dispose();
+            base.OnClosing(e);
         }
 
         private async void PollJoystick()
@@ -41,17 +59,15 @@ namespace DroneController
 
             while (true)
             {
-
                 try
                 {
-
                     var inputs = _joyInput.GetJoystickInputs();
                     if (inputs != null)
                     {
 
                         await Dispatcher.InvokeAsync(() =>
                         {
-
+                            
                             controlXLabel.Content = $"X: {inputs["X"]}";
                             controlYLabel.Content = $"Y: {inputs["Y"]}";
                             controlZLabel.Content = $"Z: {inputs["Z"]}";
@@ -61,17 +77,18 @@ namespace DroneController
                                 var povAngle = inputs["camPOV"];
                                 DateTime now = DateTime.Now;
 
+                                //POV change code
                                 if((now - lastZoomChangeTime).TotalMilliseconds >= zoomChangeDelay)
                                 {
                                     if (povAngle == 0)
                                     {
-                                        camZoom = Math.Min(camZoom + 1, 10);
-                                        zoomLabel.Content = $"ZOOM {camZoom}X";
+                                        camZoom = Math.Min(camZoom + 0.5, 3);
+                                        zoomLabel.Content = $"ZOOM {camzZoom}X";
                                         lastZoomChangeTime = now;
                                     }
                                     else if (povAngle == 18000)
                                     {
-                                        camZoom = Math.Max(camZoom - 1, 1);
+                                        camZoom = Math.Max(camZoom - 0.5, 1);
                                         zoomLabel.Content = $"ZOOM {camZoom}X";
                                         lastZoomChangeTime = now;
                                     }
@@ -90,11 +107,6 @@ namespace DroneController
 
                 await Task.Delay(50);
             }
-        }
-
-        private void UpdateCameraSignalStatus()
-        {
-            
         }
 
         private void btnClick(object sender, RoutedEventArgs e)

@@ -7,33 +7,35 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="720" Width="1280">
     <Grid>
-        <Grid Name="CameraFeed" Visibility="Visible">
-            <Grid Name="NoSigGrid">
+        <Grid Name="CameraFeedGrid" Visibility="Visible">
+            <Image x:Name="cameraFeed" Width="1280" Height="720" Stretch="UniformToFill"/>
+            <Grid Visibility="Hidden" Name="NoSigGrid">
                 <Rectangle Fill="#FF6D6D6D"/>
-                <Image Width="1280" Source="/img/droneCamOutlines.png" Stretch="Uniform"/>
+                
                 <Label Content="NO SIGNAL" VerticalAlignment="Center" HorizontalAlignment="Center" 
                 FontSize="72" FontFamily="Arial" Foreground="White"/>
                 <Label Name="statusLabel" Content="#" VerticalAlignment="Center" HorizontalAlignment="Center" 
                 FontSize="14" FontFamily="Arial" Foreground="White" Margin="0,100,0,0"/>
                 <Button Content="Click yeah" HorizontalAlignment="Center" VerticalAlignment="Bottom" Click="btnClick"/>
-                
-                
-                <StackPanel x:Name="telemStackPanel" Margin="1120,0,0,0">
-                    <Label FontSize="18" Name="zoomLabel" Content="ZOOM 1X" Foreground="White" HorizontalContentAlignment="Right"/>
-                    <Label FontSize="18" Name="brtLabel" Content="BRIGHTNESS 1" Foreground="White" HorizontalContentAlignment="Right"/>
-                    <Label FontSize="18" Name="modeLabel" Content="MODE NORMAL" Foreground="White" HorizontalContentAlignment="Right"/>
-                    <Label FontSize="18" Name="spotlightLabel" Content="SPOTLIGHT OFF" Foreground="White" HorizontalContentAlignment="Right"/>
-                    <Label FontSize="18" Name="controlXLabel" Content="X: 0" Foreground="White" HorizontalContentAlignment="Right"/>
-                    <Label FontSize="18" Name="controlYLabel" Content="Y: 0" Foreground="White" HorizontalContentAlignment="Right"/>
-                    <Label FontSize="18" Name="controlZLabel" Content="Z: 0" Foreground="White" HorizontalContentAlignment="Right"/>
-
-                </StackPanel>
             </Grid>
             
+            <StackPanel x:Name="telemStackPanel" Margin="1120,0,0,0">
+                <Label FontSize="18" Name="zoomLabel" Content="ZOOM 1X" Foreground="White" HorizontalContentAlignment="Right"/>
+                <Label FontSize="18" Name="brtLabel" Content="BRIGHTNESS 1" Foreground="White" HorizontalContentAlignment="Right"/>
+                <Label FontSize="18" Name="modeLabel" Content="MODE NORMAL" Foreground="White" HorizontalContentAlignment="Right"/>
+                <Label FontSize="18" Name="spotlightLabel" Content="SPOTLIGHT OFF" Foreground="White" HorizontalContentAlignment="Right"/>
+                <Label FontSize="18" Name="controlXLabel" Content="X: 0" Foreground="White" HorizontalContentAlignment="Right"/>
+                <Label FontSize="18" Name="controlYLabel" Content="Y: 0" Foreground="White" HorizontalContentAlignment="Right"/>
+                <Label FontSize="18" Name="controlZLabel" Content="Z: 0" Foreground="White" HorizontalContentAlignment="Right"/>
+
+            </StackPanel>
+
         </Grid>
+        <Image Width="1280" Source="/img/droneCamOutlines.png" Stretch="Uniform"/>
         <Grid x:Name="MenuGrid">
             
         </Grid>
+        
         
 
 

@@ -94,15 +94,7 @@ namespace DroneController
 
         private void UpdateCameraSignalStatus()
         {
-            if (_cameraFeed.feedOnline)
-            {
-                statusLabel.Content = "Telemetry Offline";
-            }
-            else
-            {
-                // Handle case where feed is offline
-                statusLabel.Content = "Telemetry, Video Offline";
-            }
+            
         }
 
         private void btnClick(object sender, RoutedEventArgs e)

@@ -34,12 +34,14 @@
                 <Label FontSize="18" Name="controlXLabel" Content="X: 0" Foreground="White" HorizontalContentAlignment="Right"/>
                 <Label FontSize="18" Name="controlYLabel" Content="Y: 0" Foreground="White" HorizontalContentAlignment="Right"/>
                 <Label FontSize="18" Name="controlZLabel" Content="Z: 0" Foreground="White" HorizontalContentAlignment="Right"/>
-                <Label FontSize="18" Name="hatLabel" Content="HAT 0" Foreground="White" HorizontalContentAlignment="Right"/>
+                <Label FontSize="18" Name="controlHatLabel" Content="HAT 0" Foreground="White" HorizontalContentAlignment="Right"/>
+                <Label FontSize="18" Name="camHatLabel" Content="CAM HAT 0" Foreground="White" HorizontalContentAlignment="Right"/>
 
             </StackPanel>
 
         </Grid>
         <Image Width="1280" Source="/img/droneCamOutlines.png" Stretch="Uniform"/>
+        <Button Content="Click" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center" Click="buttonClicky"/>
         <Grid x:Name="MenuGrid">
             
         </Grid>

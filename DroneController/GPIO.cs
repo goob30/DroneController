@@ -15,10 +15,11 @@ namespace GPIO
         private VideoCapture _videoCapture;
         private Mat _frame;
         public bool feedOnline;
+        public int CameraSelect = 1;
 
         public CameraFeed()
         {
-            _videoCapture = new VideoCapture(0);
+            _videoCapture = new VideoCapture(1);
             _frame = new Mat();
             _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameWidth, 1920); // Reduce resolution
             _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameHeight, 1080); // Reduce resolution
@@ -37,7 +38,7 @@ namespace GPIO
             _videoCapture.Read(_frame);
             if (_frame.Empty())
             {
-                feedOnline = false;
+                throw new Exception("Failed to capture frame");
             }
             else
             {
@@ -51,6 +52,26 @@ namespace GPIO
             _videoCapture.Release();
             _frame.Dispose();
         }
+
+        public void ChangeCamera(int newCameraSelect)
+        {
+            CameraSelect = newCameraSelect;
+
+            // Dispose of the existing video capture object
+            _videoCapture.Release();
+            _videoCapture.Dispose();
+
+            // Initialize the video capture with the new camera source
+            _videoCapture = new VideoCapture(CameraSelect);
+            if (!_videoCapture.IsOpened())
+            {
+                feedOnline = false;
+                throw new Exception($"Unable to access webcam {CameraSelect}");
+            }
+
+            feedOnline = true;
+        }
+
     }
 
 
@@ -107,8 +128,8 @@ namespace GPIO
                 { "X", state.X },
                 { "Y", state.Y },
                 { "Z", state.RotationZ },
-                { "camControl", state.PointOfViewControllers[1] },
-                { "camPOV", state.PointOfViewControllers[0] },
+                { "camControl", state.PointOfViewControllers[0] },
+                { "camPOV", state.PointOfViewControllers[1] },
             };
 
             return inputs;

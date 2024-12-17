@@ -14,6 +14,8 @@ using System.Windows.Threading;
 using System;
 using GPIO;
 using System.ComponentModel;
+using Emgu.CV;
+
 
 namespace DroneController
 {
@@ -83,15 +85,15 @@ namespace DroneController
                             controlXLabel.Content = $"X: {inputs["X"]}";
                             controlYLabel.Content = $"Y: {inputs["Y"]}";
                             controlZLabel.Content = $"Z: {inputs["Z"]}";
-                            hatLabel.Content = $" HAT {inputs["camPOV"]}";
+                            camHatLabel.Content = $"CAM HAT {inputs["camPOV"]}";
+                            controlHatLabel.Content = $"CONT HAT {inputs["camControl"]}";
 
                             if (inputs.ContainsKey("camPOV"))
                             {
                                 var povAngle = inputs["camPOV"];
 
                                 // Skip if POV is not being used (i.e., value is -1)
-                                if (povAngle == -1)
-                                    return;
+                                if (povAngle == -1) return;
 
                                 DateTime now = DateTime.Now;
 
@@ -112,6 +114,43 @@ namespace DroneController
                                     }
                                 }
                             }
+                            if (inputs.ContainsKey("camControl"))
+                            {
+                                var controlAngle = inputs["camControl"];
+
+                                if (controlAngle == -1) return;
+
+                                if (controlAngle == 9000)
+                                {
+                                    try
+                                    {
+                                        int newCameraSource = 2; // Change this to the desired camera source
+                                        _cameraFeed.ChangeCamera(newCameraSource);
+
+                                        statusLabel.Content = $"Camera switched to source {newCameraSource}";
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        statusLabel.Content = $"Error switching camera: {ex.Message}";
+                                    }
+                                }
+                                else if (controlAngle == 27000)
+                                {
+                                    try
+                                    {
+                                        int newCameraSource = 1; // Change this to the desired camera source
+                                        _cameraFeed.ChangeCamera(newCameraSource);
+
+                                        statusLabel.Content = $"Camera switched to source {newCameraSource}";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        statusLabel.Content = $"Error switching camera: {ex.Message}";
+                                    }
+                                }
+
+                            }
                         });
                     }
                     else
@@ -128,9 +167,10 @@ namespace DroneController
             }
         }
 
-
-
-
+        private void buttonClicky(object sender, RoutedEventArgs e)
+        {
+            
+        }
 
     }
 }

@@ -38,10 +38,15 @@
 
         </Grid>
         <Image Width="1280" Source="/img/droneCamOutlines.png" Stretch="Uniform"/>
-        <Image x:Name="warningIcon" Visibility="Hidden" Source="/img/alert-triangle.png" VerticalAlignment="Top" Height="75" Width="75" Margin="0,10,0,0"/>
+        
+        <Image x:Name="warningIcon" Visibility="Hidden" Source="/img/alert-triangle.png" VerticalAlignment="Top" 
+               Height="75" Width="75" Margin="0,10,0,0"/>
+        <Image x:Name="alertIcon" Visibility="Hidden" Source="/img/alert-circle.png" VerticalAlignment="Top" 
+       Height="75" Width="75" Margin="0,10,0,0"/>
+        
         <Label Name="statusLabel" Content="" VerticalAlignment="Top" HorizontalAlignment="Center" 
         FontSize="14" FontFamily="Arial" Foreground="White" Margin="0,100,0,0"/>
-        <Button VerticalAlignment="Top" HorizontalAlignment="Left" Background="#FF262626" Width="50" Height="50" Margin="10,10,0,0">
+        <Button Name="menuButton" VerticalAlignment="Top" HorizontalAlignment="Left" Background="#FF262626" Width="50" Height="50" Margin="10,10,0,0" Click="menuButtonClick">
             <Image Source="/icon/menu.png">
                 <Image.OpacityMask>
                     <ImageBrush ImageSource="/icon/menu.png"/>
@@ -53,7 +58,19 @@
                 </Style>
             </Button.Resources>
         </Button>
-        <Grid x:Name="MenuGrid">
+        <Grid x:Name="MenuGrid" Background="#D8414141">
+            <Button x:Name="menuButton2" VerticalAlignment="Top" HorizontalAlignment="Left" Background="#FF262626" Width="50" Height="50" Margin="10,10,0,0" Click="menuButton2Click">
+                <Image Source="/icon/menu.png">
+                    <Image.OpacityMask>
+                        <ImageBrush ImageSource="/icon/menu.png"/>
+                    </Image.OpacityMask>
+                </Image>
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="10"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
 
         </Grid>
 

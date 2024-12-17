@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="icon\menu.png" />
     <None Remove="img\droneCamOutlines.png" />
     <None Remove="img\grid.png" />
   </ItemGroup>
@@ -25,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="icon\menu.png" />
     <Resource Include="img\droneCamOutlines.png" />
     <Resource Include="img\grid.png" />
   </ItemGroup>

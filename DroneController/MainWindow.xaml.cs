@@ -15,6 +15,7 @@ using System;
 using GPIO;
 using System.ComponentModel;
 using Emgu.CV;
+using SharpDX.DirectInput;
 
 
 namespace DroneController
@@ -73,11 +74,22 @@ namespace DroneController
             DateTime lastZoomChangeTime = DateTime.MinValue;
             int zoomChangeDelay = 160;
 
+            // Check if joystick is detected
+            if (_joyInput == null || _joyInput.GetJoystickInputs() == null)
+            {
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    statusLabel.Content = "No joystick detected. Polling skipped.";
+                });
+                return; // Exit method
+            }
+
             while (true)
             {
                 try
                 {
                     var inputs = _joyInput.GetJoystickInputs();
+
                     if (inputs != null)
                     {
                         await Dispatcher.InvokeAsync(() =>
@@ -92,12 +104,10 @@ namespace DroneController
                             {
                                 var povAngle = inputs["camPOV"];
 
-                                // Skip if POV is not being used (i.e., value is -1)
                                 if (povAngle == -1) return;
 
                                 DateTime now = DateTime.Now;
 
-                                // POV change code
                                 if ((now - lastZoomChangeTime).TotalMilliseconds >= zoomChangeDelay)
                                 {
                                     if (povAngle == 0)
@@ -114,21 +124,18 @@ namespace DroneController
                                     }
                                 }
                             }
+
                             if (inputs.ContainsKey("camControl"))
                             {
                                 var controlAngle = inputs["camControl"];
-
                                 if (controlAngle == -1) return;
 
                                 if (controlAngle == 9000)
                                 {
                                     try
                                     {
-                                        int newCameraSource = 2; // Change this to the desired camera source
-                                        _cameraFeed.ChangeCamera(newCameraSource);
-
-                                        statusLabel.Content = $"Camera switched to source {newCameraSource}";
-
+                                        _cameraFeed.ChangeCamera(2);
+                                        statusLabel.Content = "Camera switched to source 2";
                                     }
                                     catch (Exception ex)
                                     {
@@ -139,17 +146,14 @@ namespace DroneController
                                 {
                                     try
                                     {
-                                        int newCameraSource = 1; // Change this to the desired camera source
-                                        _cameraFeed.ChangeCamera(newCameraSource);
-
-                                        statusLabel.Content = $"Camera switched to source {newCameraSource}";
+                                        _cameraFeed.ChangeCamera(1);
+                                        statusLabel.Content = "Camera switched to source 1";
                                     }
                                     catch (Exception ex)
                                     {
                                         statusLabel.Content = $"Error switching camera: {ex.Message}";
                                     }
                                 }
-
                             }
                         });
                     }
@@ -160,12 +164,16 @@ namespace DroneController
                 }
                 catch (Exception ex)
                 {
-                    statusLabel.Content = ($"Error polling joystick: {ex.Message}");
+                    await Dispatcher.InvokeAsync(() =>
+                    {
+                        statusLabel.Content = $"Error polling joystick: {ex.Message}";
+                    });
                 }
 
                 await Task.Delay(50);
             }
         }
+
 
         private void buttonClicky(object sender, RoutedEventArgs e)
         {

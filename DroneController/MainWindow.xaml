@@ -16,15 +16,13 @@
                     <Point X="0.5" Y="0.5"/>
                 </Image.RenderTransformOrigin>
             </Image>
-            <Grid Visibility="Hidden" Name="NoSigGrid">
+            <Grid Visibility="Visible" Name="NoSigGrid">
                 <Rectangle Fill="#FF6D6D6D"/>
-                
+
                 <Label Content="NO SIGNAL" VerticalAlignment="Center" HorizontalAlignment="Center" 
                 FontSize="72" FontFamily="Arial" Foreground="White"/>
-                
-                <Button Content="Click yeah" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
             </Grid>
-            
+
             <StackPanel x:Name="telemStackPanel" Margin="1120,0,0,0">
                 <Label FontSize="18" Name="zoomLabel" Content="ZOOM 1X" Foreground="White" HorizontalContentAlignment="Right"/>
                 <Label FontSize="18" Name="brtLabel" Content="BRIGHTNESS 1" Foreground="White" HorizontalContentAlignment="Right"/>
@@ -40,12 +38,26 @@
 
         </Grid>
         <Image Width="1280" Source="/img/droneCamOutlines.png" Stretch="Uniform"/>
-        <Button Content="Click" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center" Click="buttonClicky"/>
+        <Image x:Name="warningIcon" Visibility="Hidden" Source="/img/alert-triangle.png" VerticalAlignment="Top" Height="75" Width="75" Margin="0,10,0,0"/>
+        <Label Name="statusLabel" Content="" VerticalAlignment="Top" HorizontalAlignment="Center" 
+        FontSize="14" FontFamily="Arial" Foreground="White" Margin="0,100,0,0"/>
+        <Button VerticalAlignment="Top" HorizontalAlignment="Left" Background="#FF262626" Width="50" Height="50" Margin="10,10,0,0">
+            <Image Source="/icon/menu.png">
+                <Image.OpacityMask>
+                    <ImageBrush ImageSource="/icon/menu.png"/>
+                </Image.OpacityMask>
+            </Image>
+            <Button.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="10"/>
+                </Style>
+            </Button.Resources>
+        </Button>
         <Grid x:Name="MenuGrid">
-            
+
         </Grid>
-        
-        
+
+
 
 
     </Grid>

@@ -10,16 +10,17 @@ using System.Windows.Media.Imaging;
 
 namespace GPIO
 {
+    
     public class CameraFeed
     {
         private VideoCapture _videoCapture;
         private Mat _frame;
         public bool feedOnline;
-        public int CameraSelect = 1;
+        public int CameraSelect = 0;
 
         public CameraFeed()
         {
-            _videoCapture = new VideoCapture(1);
+            _videoCapture = new VideoCapture(CameraSelect);
             _frame = new Mat();
             _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameWidth, 1920); // Reduce resolution
             _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameHeight, 1080); // Reduce resolution
@@ -89,29 +90,38 @@ namespace GPIO
     {
         private DirectInput _directInput;
         private Joystick _joystick;
-        public string JoyStatusString = "";
+        public string JoyStatusString = "No Joystick Found";
 
         public JoyInput()
         {
             _directInput = new DirectInput();
 
-            var joystickGuid = Guid.NewGuid();
+            var joystickGuid = Guid.Empty;
+
+            // Search for a connected joystick
             foreach (var deviceInstance in _directInput.GetDevices(DeviceType.Joystick, DeviceEnumerationFlags.AttachedOnly))
             {
                 joystickGuid = deviceInstance.InstanceGuid;
-                JoyStatusString = "";
                 break;
             }
 
             if (joystickGuid == Guid.Empty)
             {
-                JoyStatusString = "No Joystick Found";
-                
+                _joystick = null;
                 return;
             }
 
-            _joystick = new Joystick(_directInput, joystickGuid);
-            _joystick.Acquire();
+            try
+            {
+                _joystick = new Joystick(_directInput, joystickGuid);
+                _joystick.Acquire();
+                JoyStatusString = "Joystick Connected";
+            }
+            catch (Exception ex)
+            {
+                _joystick = null;
+                JoyStatusString = $"Joystick Error: {ex.Message}";
+            }
         }
 
         public Dictionary<string, int> GetJoystickInputs()
@@ -119,11 +129,12 @@ namespace GPIO
             if (_joystick == null)
                 return null;
 
-            _joystick.Poll();
-            var state = _joystick.GetCurrentState();
+            try
+            {
+                _joystick.Poll();
+                var state = _joystick.GetCurrentState();
 
-            //Input definitions
-            var inputs = new Dictionary<string, int>
+                return new Dictionary<string, int>
             {
                 { "X", state.X },
                 { "Y", state.Y },
@@ -131,8 +142,12 @@ namespace GPIO
                 { "camControl", state.PointOfViewControllers[0] },
                 { "camPOV", state.PointOfViewControllers[1] },
             };
-
-            return inputs;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
+
 }

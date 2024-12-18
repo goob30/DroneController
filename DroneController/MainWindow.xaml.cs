@@ -31,7 +31,7 @@ namespace DroneController
         public double camZoom = 1;
         private DispatcherTimer _timer;
         private ScaleTransform _scaleTransform;
-        System.Media.SoundPlayer alertPlayer = new System.Media.SoundPlayer(@"/Sounds/NewMessage.wav");
+        System.Media.SoundPlayer alertPlayer = new System.Media.SoundPlayer(@"C:\Users\jskor\source\repos\goob30\DroneController\DroneController\Sounds\NewMessage.wav");
 
         public MainWindow()
         {

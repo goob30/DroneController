@@ -9,9 +9,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="icon\layers.png" />
     <None Remove="icon\menu.png" />
+    <None Remove="icon\radio.png" />
+    <None Remove="icon\rss.png" />
+    <None Remove="img\alert-circle.png" />
+    <None Remove="img\alert-triangle.png" />
+    <None Remove="img\circle.png" />
     <None Remove="img\droneCamOutlines.png" />
     <None Remove="img\grid.png" />
+    <None Remove="img\slash.png" />
+    <None Remove="img\square.png" />
+    <None Remove="img\x.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,9 +35,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="icon\layers.png" />
     <Resource Include="icon\menu.png" />
+    <Resource Include="icon\radio.png" />
+    <Resource Include="icon\rss.png" />
+    <Resource Include="img\alert-circle.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="img\alert-triangle.png" />
+    <Resource Include="img\circle.png" />
     <Resource Include="img\droneCamOutlines.png" />
     <Resource Include="img\grid.png" />
+    <Resource Include="img\slash.png" />
+    <Resource Include="img\square.png" />
+    <Resource Include="img\x.png" />
   </ItemGroup>
 
 </Project>

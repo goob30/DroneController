@@ -165,5 +165,14 @@ namespace DroneController
             
         }
 
+        private void menuButtonClick(object sender, RoutedEventArgs e)
+        {
+            MenuGrid.Visibility = Visibility.Visible;
+        }
+
+        private void menuButton2Click(object sender, RoutedEventArgs e)
+        {
+            MenuGrid.Visibility = Visibility.Hidden;
+        }
     }
 }

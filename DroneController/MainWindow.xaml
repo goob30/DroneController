@@ -58,7 +58,7 @@
                 </Style>
             </Button.Resources>
         </Button>
-        <Grid x:Name="MenuGrid" Background="#D8414141">
+        <Grid x:Name="MenuGrid" Visibility="Hidden" Background="#D8414141">
             <Button x:Name="menuButton2" VerticalAlignment="Top" HorizontalAlignment="Left" Background="#FF262626" Width="50" Height="50" Margin="10,10,0,0" Click="menuButton2Click">
                 <Image Source="/icon/menu.png">
                     <Image.OpacityMask>

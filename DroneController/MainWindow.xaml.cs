@@ -84,6 +84,8 @@ namespace DroneController
                 await Dispatcher.InvokeAsync(() =>
                 {
                     statusLabel.Content = "No joystick detected. Polling skipped.";
+                    alertIcon.Visibility = Visibility.Visible;
+                    alertPlayer.Play();
                 });
                 return; // Exit method
             }
@@ -150,6 +152,7 @@ namespace DroneController
                     await Dispatcher.InvokeAsync(() =>
                     {
                         statusLabel.Content = $"Error polling joystick: {ex.Message}";
+                        alertIcon.Visibility = Visibility.Visible;
                     });
                 }
 

@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography.X509Certificates;
+using System.Media;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -30,7 +31,8 @@ namespace DroneController
         public double camZoom = 1;
         private DispatcherTimer _timer;
         private ScaleTransform _scaleTransform;
-        
+        System.Media.SoundPlayer alertPlayer = new System.Media.SoundPlayer(@"/Sounds/NewMessage.wav");
+
         public MainWindow()
         {
             InitializeComponent();
@@ -43,6 +45,8 @@ namespace DroneController
             _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(30) };
             _timer.Tick += UpdateFrame;
             _timer.Start();
+
+            
         }
 
         private async void UpdateFrame(object sender, EventArgs e)
@@ -105,29 +109,34 @@ namespace DroneController
 
                             if (buttons.Length > 11 && buttons[11]) InitializeCamera(1); // H2 right
 
+                            DateTime now = DateTime.Now;
+
+                            if ((now - lastZoomChangeTime).TotalMilliseconds >= zoomChangeDelay)
+                            {
+                                if (buttons.Length > 10 && buttons[10])
+                                {
+                                    camZoom = Math.Min(camZoom + 0.5, 3);
+                                    zoomLabel.Content = $"ZOOM {camZoom}X";
+                                    lastZoomChangeTime = now;
+                                    alertPlayer.Play();
+                                }
+
+                                if (buttons.Length > 12 && buttons[12])
+                                {
+                                    camZoom = Math.Max(camZoom - 0.5, 1);
+                                    zoomLabel.Content = $"ZOOM {camZoom}X";
+                                    lastZoomChangeTime = now;
+                                }
+                            }
+
+
                             if (inputs.ContainsKey("camPOV"))
                             {
                                 var povAngle = inputs["camPOV"];
 
                                 if (povAngle == -1) return;
 
-                                DateTime now = DateTime.Now;
-
-                                if ((now - lastZoomChangeTime).TotalMilliseconds >= zoomChangeDelay)
-                                {
-                                    if (povAngle == 0)
-                                    {
-                                        camZoom = Math.Min(camZoom + 0.5, 3);
-                                        zoomLabel.Content = $"ZOOM {camZoom}X";
-                                        lastZoomChangeTime = now;
-                                    }
-                                    else if (povAngle == 18000)
-                                    {
-                                        camZoom = Math.Max(camZoom - 0.5, 1);
-                                        zoomLabel.Content = $"ZOOM {camZoom}X";
-                                        lastZoomChangeTime = now;
-                                    }
-                                }
+                                
                             }
                         });
                     }

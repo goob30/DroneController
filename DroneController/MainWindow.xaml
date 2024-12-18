@@ -16,7 +16,7 @@
                     <Point X="0.5" Y="0.5"/>
                 </Image.RenderTransformOrigin>
             </Image>
-            <Grid Visibility="Visible" Name="NoSigGrid">
+            <Grid Visibility="Hidden" Name="NoSigGrid">
                 <Rectangle Fill="#FF6D6D6D"/>
 
                 <Label Content="NO SIGNAL" VerticalAlignment="Center" HorizontalAlignment="Center" 

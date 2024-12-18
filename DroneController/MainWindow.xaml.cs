@@ -36,8 +36,7 @@ namespace DroneController
             InitializeComponent();
             _cameraFeed = new CameraFeed();
 
-            _scaleTransform = cameraFeed.RenderTransform as ScaleTransform;
-
+            _scaleTransform = cameraScale;
             _joyInput = new JoyInput();
             Task.Run(() => PollJoystick());
 
@@ -51,12 +50,13 @@ namespace DroneController
             cameraFeed.Source = _cameraFeed.GetFrame();
             var frame = await Task.Run(() => _cameraFeed.GetFrame());
 
-            if(_scaleTransform != null)
+            if (_scaleTransform != null)
             {
                 _scaleTransform.ScaleX = camZoom;
                 _scaleTransform.ScaleY = camZoom;
             }
-            if(_cameraFeed.feedOnline == false)
+
+            if (_cameraFeed.feedOnline == false)
             {
                 NoSigGrid.Visibility = Visibility.Visible;
             }
@@ -89,8 +89,9 @@ namespace DroneController
                 try
                 {
                     var inputs = _joyInput.GetJoystickInputs();
+                    var buttons = _joyInput.GetJoyButtons();
 
-                    if (inputs != null)
+                    if (inputs != null && buttons.Length > 0)
                     {
                         await Dispatcher.InvokeAsync(() =>
                         {
@@ -99,6 +100,10 @@ namespace DroneController
                             controlZLabel.Content = $"Z: {inputs["Z"]}";
                             camHatLabel.Content = $"CAM HAT {inputs["camPOV"]}";
                             controlHatLabel.Content = $"CONT HAT {inputs["camControl"]}";
+
+                            if (buttons.Length > 13 && buttons[13]) InitializeCamera(0) ; // H2 left
+
+                            if (buttons.Length > 11 && buttons[11]) InitializeCamera(1); // H2 right
 
                             if (inputs.ContainsKey("camPOV"))
                             {
@@ -124,37 +129,6 @@ namespace DroneController
                                     }
                                 }
                             }
-
-                            if (inputs.ContainsKey("camControl"))
-                            {
-                                var controlAngle = inputs["camControl"];
-                                if (controlAngle == -1) return;
-
-                                if (controlAngle == 9000)
-                                {
-                                    try
-                                    {
-                                        _cameraFeed.ChangeCamera(2);
-                                        statusLabel.Content = "Camera switched to source 2";
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        statusLabel.Content = $"Error switching camera: {ex.Message}";
-                                    }
-                                }
-                                else if (controlAngle == 27000)
-                                {
-                                    try
-                                    {
-                                        _cameraFeed.ChangeCamera(1);
-                                        statusLabel.Content = "Camera switched to source 1";
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        statusLabel.Content = $"Error switching camera: {ex.Message}";
-                                    }
-                                }
-                            }
                         });
                     }
                     else
@@ -174,6 +148,17 @@ namespace DroneController
             }
         }
 
+        private void InitializeCamera(int cameraIndex)
+        {
+            try
+            {
+                _cameraFeed.ChangeCamera(cameraIndex);
+            }
+            catch (Exception)
+            {
+                
+            }
+        }
 
         private void buttonClicky(object sender, RoutedEventArgs e)
         {

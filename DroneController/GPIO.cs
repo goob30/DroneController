@@ -22,8 +22,8 @@ namespace GPIO
         {
             _videoCapture = new VideoCapture(CameraSelect);
             _frame = new Mat();
-            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameWidth, 1920); // Reduce resolution
-            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameHeight, 1080); // Reduce resolution
+            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameWidth, 1280); // Reduce resolution
+            _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameHeight, 720); // Reduce resolution
             _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.Fps, 30);
             feedOnline = true;
             if (!_videoCapture.IsOpened())
@@ -139,13 +139,32 @@ namespace GPIO
                 { "X", state.X },
                 { "Y", state.Y },
                 { "Z", state.RotationZ },
-                { "camControl", state.PointOfViewControllers[0] },
-                { "camPOV", state.PointOfViewControllers[1] },
+                { "camControl", state.PointOfViewControllers[1] },
+                { "camPOV", state.PointOfViewControllers[0] },
             };
             }
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        public bool[] GetJoyButtons()
+        {
+            if (_joystick == null)
+            {
+                return new bool[0];
+            }
+
+            try
+            {
+                _joystick.Poll();
+                var state = _joystick.GetCurrentState();
+                return state.Buttons;
+            }
+            catch (Exception)
+            {
+                return new bool[0];
             }
         }
     }

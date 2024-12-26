@@ -31,7 +31,6 @@ namespace DroneController
         public double camZoom = 1;
         private DispatcherTimer _timer;
         private ScaleTransform _scaleTransform;
-        System.Media.SoundPlayer alertPlayer = new System.Media.SoundPlayer(@"C:\Users\jskor\source\repos\goob30\DroneController\DroneController\Sounds\NewMessage.wav");
 
         public MainWindow()
         {
@@ -44,8 +43,7 @@ namespace DroneController
 
             _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(30) };
             _timer.Tick += UpdateFrame;
-            _timer.Start();
-
+            _timer.Start(); 
             
         }
 
@@ -85,7 +83,6 @@ namespace DroneController
                 {
                     statusLabel.Content = "No joystick detected. Polling skipped.";
                     alertIcon.Visibility = Visibility.Visible;
-                    alertPlayer.Play();
                 });
                 return; // Exit method
             }
@@ -120,7 +117,6 @@ namespace DroneController
                                     camZoom = Math.Min(camZoom + 0.5, 3);
                                     zoomLabel.Content = $"ZOOM {camZoom}X";
                                     lastZoomChangeTime = now;
-                                    alertPlayer.Play();
                                 }
 
                                 if (buttons.Length > 12 && buttons[12])
@@ -137,8 +133,6 @@ namespace DroneController
                                 var povAngle = inputs["camPOV"];
 
                                 if (povAngle == -1) return;
-
-                                
                             }
                         });
                     }
@@ -160,6 +154,8 @@ namespace DroneController
             }
         }
 
+        public bool ThrowMyChildIfHeDontGetMeBeer;
+
         private void InitializeCamera(int cameraIndex)
         {
             try
@@ -168,7 +164,7 @@ namespace DroneController
             }
             catch (Exception)
             {
-                
+                ThrowMyChildIfHeDontGetMeBeer = true;
             }
         }
 

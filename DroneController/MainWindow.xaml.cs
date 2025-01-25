@@ -154,7 +154,7 @@ namespace DroneController
             }
         }
 
-        public bool ThrowMyChildIfHeDontGetMeBeer;
+        public bool ThrowMyChildIfHeDontGetMeBeer; //the fuck is this
 
         private void InitializeCamera(int cameraIndex)
         {
@@ -164,13 +164,8 @@ namespace DroneController
             }
             catch (Exception)
             {
-                ThrowMyChildIfHeDontGetMeBeer = true;
+                ThrowMyChildIfHeDontGetMeBeer = true; 
             }
-        }
-
-        private void buttonClicky(object sender, RoutedEventArgs e)
-        {
-            
         }
 
         private void menuButtonClick(object sender, RoutedEventArgs e)

@@ -17,6 +17,7 @@ using GPIO;
 using System.ComponentModel;
 using Emgu.CV;
 using SharpDX.DirectInput;
+using System.IO.Ports;
 
 
 namespace DroneController
@@ -28,6 +29,7 @@ namespace DroneController
     {
         private CameraFeed _cameraFeed;
         private JoyInput _joyInput;
+        private FltControl _fltControl;
         public double camZoom = 1;
         private DispatcherTimer _timer;
         private ScaleTransform _scaleTransform;
@@ -36,15 +38,14 @@ namespace DroneController
         {
             InitializeComponent();
             _cameraFeed = new CameraFeed();
-
             _scaleTransform = cameraScale;
             _joyInput = new JoyInput();
+            _fltControl = new FltControl();
             Task.Run(() => PollJoystick());
 
             _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(30) };
             _timer.Tick += UpdateFrame;
             _timer.Start(); 
-            
         }
 
         private async void UpdateFrame(object sender, EventArgs e)
@@ -127,7 +128,6 @@ namespace DroneController
                                 }
                             }
 
-
                             if (inputs.ContainsKey("camPOV"))
                             {
                                 var povAngle = inputs["camPOV"];
@@ -135,6 +135,9 @@ namespace DroneController
                                 if (povAngle == -1) return;
                             }
                         });
+
+                        string joysSerial = $"X: {inputs["X"]}";
+                        if (_fltControl.port.IsOpen) { _fltControl.port.WriteLine(joysSerial); }
                     }
                     else
                     {

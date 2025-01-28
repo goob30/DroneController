@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Emgu.CV" Version="4.9.0.5494" />
+    <PackageReference Include="Emgu.CV" Version="4.10.0.5680" />
     <PackageReference Include="OpenCvSharp4" Version="4.10.0.20241108" />
     <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.10.0.20241108" />
     <PackageReference Include="OpenCvSharp4.WpfExtensions" Version="4.10.0.20241108" />
@@ -32,6 +32,8 @@
     <PackageReference Include="SharpDX.DirectInput" Version="4.2.0" />
     <PackageReference Include="System.Device.Gpio" Version="3.2.0" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
+    <PackageReference Include="System.IO" Version="4.3.0" />
+    <PackageReference Include="System.IO.Ports" Version="9.0.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,6 +7,7 @@ using SharpDX.DirectInput;
 using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
 using System.Windows.Media.Imaging;
+using System.IO.Ports;
 
 namespace GPIO
 {
@@ -78,7 +79,65 @@ namespace GPIO
 
     public class FltControl
     {
-        // Placeholder for future flight control implementation
+        public SerialPort port;
+        public int baudRate = 9600;
+        public string comPort = "COM12";
+        private Thread fltSignalThread;
+        private bool isSending = false;
+        public FltControl()
+        {
+            port = new SerialPort(comPort, baudRate);
+            port.Open();
+        }
+
+        public void startSerial()
+        {
+            if (isSending) { return; }
+
+            isSending = true;
+            fltSignalThread = new Thread(() =>
+            {
+                while (isSending)
+                {
+                    try
+                    {
+                        if (port.IsOpen)
+                        {
+                            port.WriteLine("hi");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.ToString());
+                        StopSending();
+                    }
+                    Thread.Sleep(50);
+                }
+            });
+            
+            fltSignalThread.IsBackground = true;
+            fltSignalThread.Start();
+        }
+
+        public void StopSending()
+        {
+            isSending = false;
+
+            if(fltSignalThread != null && fltSignalThread.IsAlive)
+            {
+                fltSignalThread.Join();
+            }
+        }
+
+        public void Dispose()
+        {
+            StopSending();
+
+            if (port != null && port.IsOpen)
+            {
+                port.Close();
+            }
+        }
     }
 
     public class CamControl
@@ -170,3 +229,4 @@ namespace GPIO
     }
 
 }
+

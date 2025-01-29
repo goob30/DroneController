@@ -189,7 +189,7 @@ namespace GPIO
 
             // Access joystick input correctly here
             var inputs = joyInput.GetJoystickInputs();
-            if (inputs == null)
+            if (inputs == null || !inputs.ContainsKey("X") || !inputs.ContainsKey("Y"))
             {
                 Console.WriteLine("No joystick data available.");
                 return;
@@ -197,32 +197,39 @@ namespace GPIO
 
             // Create joysSerial string with joystick X and Y values
             string joysSerial = $"X {inputs["X"]} Y {inputs["Y"]}";
+            Console.WriteLine($"Sending serial: {joysSerial}");  // Debug: Print what is being sent
 
             // Start the thread to keep sending if needed
             isSending = true;
             fltSignalThread = new Thread(() =>
             {
-                try
+                while (isSending)
                 {
-                    // Ensure that the port is still open before writing again
-                    if (port.IsOpen)
+                    try
                     {
-                        // Send the joysSerial string again if necessary or keep doing periodic updates
-                        port.WriteLine(joysSerial);
+                        // Ensure that the port is still open before writing again
+                        if (port.IsOpen)
+                        {
+                            port.WriteLine(joysSerial);  // Send the serial data to the Arduino
+                            Console.WriteLine($"Sent: {joysSerial}");  // Debug: Print sent data
+                        }
+                        else
+                        {
+                            Console.WriteLine("Port is not open.");
+                        }
                     }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Error: {e.Message}");
+                        StopSending();  // Stop sending if an error occurs
+                    }
+                    Thread.Sleep(50);  // Sleep for a short time before sending the next data
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.ToString());
-                    StopSending();
-                }
-                Thread.Sleep(50); // Sleep for a short time before continuing
             });
 
             fltSignalThread.IsBackground = true;
             fltSignalThread.Start();
         }
-
 
         public void StopSending()
         {
@@ -244,6 +251,7 @@ namespace GPIO
             }
         }
     }
+
 
 
 }

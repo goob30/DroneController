@@ -136,8 +136,7 @@ namespace DroneController
                             }
                         });
 
-                        string joysSerial = $"X: {inputs["X"]}";
-                        if (_fltControl.port.IsOpen) { _fltControl.port.WriteLine(joysSerial); }
+                        
                     }
                     else
                     {

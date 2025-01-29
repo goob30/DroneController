@@ -77,68 +77,7 @@ namespace GPIO
     }
 
 
-    public class FltControl
-    {
-        public SerialPort port;
-        public int baudRate = 9600;
-        public string comPort = "COM12";
-        private Thread fltSignalThread;
-        private bool isSending = false;
-        public FltControl()
-        {
-            port = new SerialPort(comPort, baudRate);
-            port.Open();
-        }
-
-        public void startSerial()
-        {
-            if (isSending) { return; }
-
-            isSending = true;
-            fltSignalThread = new Thread(() =>
-            {
-                while (isSending)
-                {
-                    try
-                    {
-                        if (port.IsOpen)
-                        {
-                            port.WriteLine("hi");
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.ToString());
-                        StopSending();
-                    }
-                    Thread.Sleep(50);
-                }
-            });
-            
-            fltSignalThread.IsBackground = true;
-            fltSignalThread.Start();
-        }
-
-        public void StopSending()
-        {
-            isSending = false;
-
-            if(fltSignalThread != null && fltSignalThread.IsAlive)
-            {
-                fltSignalThread.Join();
-            }
-        }
-
-        public void Dispose()
-        {
-            StopSending();
-
-            if (port != null && port.IsOpen)
-            {
-                port.Close();
-            }
-        }
-    }
+    
 
     public class CamControl
     {
@@ -227,6 +166,85 @@ namespace GPIO
             }
         }
     }
+
+    public class FltControl
+    {
+        public SerialPort port;
+        public int baudRate = 9600;
+        public string comPort = "COM12";
+        private Thread fltSignalThread;
+        public bool isSending = false;
+        private JoyInput joyInput;  // Create an instance of JoyInput
+
+        public FltControl()
+        {
+            port = new SerialPort(comPort, baudRate);
+            port.Open();
+            joyInput = new JoyInput();  // Initialize the JoyInput
+        }
+
+        public void startSerial()
+        {
+            if (isSending) { return; }
+
+            // Access joystick input correctly here
+            var inputs = joyInput.GetJoystickInputs();
+            if (inputs == null)
+            {
+                Console.WriteLine("No joystick data available.");
+                return;
+            }
+
+            // Create joysSerial string with joystick X and Y values
+            string joysSerial = $"X {inputs["X"]} Y {inputs["Y"]}";
+
+            // Start the thread to keep sending if needed
+            isSending = true;
+            fltSignalThread = new Thread(() =>
+            {
+                try
+                {
+                    // Ensure that the port is still open before writing again
+                    if (port.IsOpen)
+                    {
+                        // Send the joysSerial string again if necessary or keep doing periodic updates
+                        port.WriteLine(joysSerial);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                    StopSending();
+                }
+                Thread.Sleep(50); // Sleep for a short time before continuing
+            });
+
+            fltSignalThread.IsBackground = true;
+            fltSignalThread.Start();
+        }
+
+
+        public void StopSending()
+        {
+            isSending = false;
+
+            if (fltSignalThread != null && fltSignalThread.IsAlive)
+            {
+                fltSignalThread.Join();
+            }
+        }
+
+        public void Dispose()
+        {
+            StopSending();
+
+            if (port != null && port.IsOpen)
+            {
+                port.Close();
+            }
+        }
+    }
+
 
 }
 

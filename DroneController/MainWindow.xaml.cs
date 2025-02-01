@@ -18,6 +18,7 @@ using System.ComponentModel;
 using Emgu.CV;
 using SharpDX.DirectInput;
 using System.IO.Ports;
+using System.Diagnostics;
 
 
 namespace DroneController
@@ -45,7 +46,8 @@ namespace DroneController
 
             _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(30) };
             _timer.Tick += UpdateFrame;
-            _timer.Start(); 
+            _timer.Start();
+            Debug.WriteLine("Started app");
         }
 
         private async void UpdateFrame(object sender, EventArgs e)

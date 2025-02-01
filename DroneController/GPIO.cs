@@ -8,6 +8,7 @@ using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
 using System.Windows.Media.Imaging;
 using System.IO.Ports;
+using System.Diagnostics;
 
 namespace GPIO
 {
@@ -26,11 +27,10 @@ namespace GPIO
             _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameWidth, 1280); // Reduce resolution
             _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.FrameHeight, 720); // Reduce resolution
             _videoCapture.Set(OpenCvSharp.VideoCaptureProperties.Fps, 30);
-            feedOnline = true;
+            
             if (!_videoCapture.IsOpened())
             {
                 throw new Exception("Unable to access webcam");
-                feedOnline = false;
 
             }
         }
@@ -40,7 +40,7 @@ namespace GPIO
             _videoCapture.Read(_frame);
             if (_frame.Empty())
             {
-                throw new Exception("Failed to capture frame");
+                    throw new Exception("Failed to capture frame");
             }
             else
             {
@@ -171,65 +171,109 @@ namespace GPIO
     {
         public SerialPort port;
         public int baudRate = 9600;
-        public string comPort = "COM12";
+        public string comPort = "COM4";
         private Thread fltSignalThread;
         public bool isSending = false;
         private JoyInput joyInput;  // Create an instance of JoyInput
 
         public FltControl()
         {
-            port = new SerialPort(comPort, baudRate);
-            port.Open();
-            joyInput = new JoyInput();  // Initialize the JoyInput
+            // Start the serial port and joystick initialization in a background thread
+            Task.Run(() =>
+            {
+                // This will run on a background thread
+                Debug.WriteLine("Initializing FltControl");
+
+                try
+                {
+                    // Initialize the serial port
+                    port = new SerialPort(comPort, baudRate);
+                    port.Open();
+                    Debug.WriteLine($"Serial port opened at {comPort} with {baudRate} baud rate.");
+
+                    // Initialize the joystick input
+                    joyInput = new JoyInput();
+                    Debug.WriteLine("JoyInput initialized.");
+
+                    // Wait for 2 seconds for any necessary setup
+                    Thread.Sleep(2000);  // Wait for the necessary time (this won't block the UI thread)
+                    Debug.WriteLine("2 seconds sleep complete.");
+
+                    // You can access joystick data after initialization
+                    Debug.WriteLine($"Joystick Status: {joyInput.JoyStatusString}");
+
+                    // Now you can start sending serial data, etc.
+                    startSerial();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error initializing FltControl: {ex.Message}");
+                }
+            });
         }
+
+
 
         public void startSerial()
         {
             if (isSending) { return; }
 
-            // Access joystick input correctly here
-            var inputs = joyInput.GetJoystickInputs();
-            if (inputs == null || !inputs.ContainsKey("X") || !inputs.ContainsKey("Y"))
-            {
-                Console.WriteLine("No joystick data available.");
-                return;
-            }
-
-            // Create joysSerial string with joystick X and Y values
-            string joysSerial = $"X {inputs["X"]} Y {inputs["Y"]}";
-            Console.WriteLine($"Sending serial: {joysSerial}");  // Debug: Print what is being sent
-
-            // Start the thread to keep sending if needed
             isSending = true;
+
+            // Start the thread to send serial data
             fltSignalThread = new Thread(() =>
             {
                 while (isSending)
                 {
                     try
                     {
-                        // Ensure that the port is still open before writing again
-                        if (port.IsOpen)
+                        // Access joystick input in each iteration to get the latest data
+                        var inputs = joyInput.GetJoystickInputs();
+                        if (inputs == null || !inputs.ContainsKey("X") || !inputs.ContainsKey("Y"))
                         {
-                            port.WriteLine(joysSerial);  // Send the serial data to the Arduino
-                            Console.WriteLine($"Sent: {joysSerial}");  // Debug: Print sent data
+                            Debug.WriteLine("No joystick data available.");  // Debug output
+                            continue;  // Skip this iteration if no data is available
                         }
-                        else
+
+                        // Create joysSerial string with joystick X and Y values
+                        string joysSerial = $"X {inputs["X"]} Y {inputs["Y"]}";
+                        Debug.WriteLine($"Sending serial: {joysSerial}");  // Debug output
+
+                        // Ensure the port is open before writing to it
+                        if (!port.IsOpen)
                         {
-                            Console.WriteLine("Port is not open.");
+                            Debug.WriteLine("Port is closed. Attempting to reopen...");
+                            try
+                            {
+                                port.Open();  // Try to reopen the port if it's closed
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Failed to reopen port: {ex.Message}");
+                                continue;  // Skip this iteration if port can't be reopened
+                            }
                         }
+
+                        // Send the latest joystick data
+                        port.WriteLine(joysSerial);
+                        Debug.WriteLine($"Sent: {joysSerial}");  // Debug output
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"Error: {e.Message}");
-                        StopSending();  // Stop sending if an error occurs
+                        Debug.WriteLine($"Error: {e.Message}");
+                        StopSending();
                     }
-                    Thread.Sleep(50);  // Sleep for a short time before sending the next data
+
+                    // Sleep for a short duration before next loop iteration
+                    Thread.Sleep(50);
                 }
             });
 
             fltSignalThread.IsBackground = true;
             fltSignalThread.Start();
         }
+
+
 
         public void StopSending()
         {

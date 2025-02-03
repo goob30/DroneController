@@ -131,21 +131,23 @@ namespace GPIO
             {
                 _joystick.Poll();
                 var state = _joystick.GetCurrentState();
+                var buttons = state.Buttons;
 
-                return new Dictionary<string, int>
-            {
-                { "X", state.X },
-                { "Y", state.Y },
-                { "Z", state.RotationZ },
-                { "camControl", state.PointOfViewControllers[1] },
-                { "camPOV", state.PointOfViewControllers[0] },
-            };
+                return new Dictionary<string, int>{
+                    { "X", state.X },
+                    { "Y", state.Y },
+                    { "Z", state.RotationZ },
+                    { "camControl", state.PointOfViewControllers[1] },
+                    { "camPOV", state.PointOfViewControllers[0] },
+                    { "Trigger", buttons.Length > 0 && buttons[0] ? 1 : 0 } // Trigger is Button 0
+                };
             }
             catch (Exception)
             {
                 return null;
             }
         }
+
 
         public bool[] GetJoyButtons()
         {
@@ -216,84 +218,110 @@ namespace GPIO
 
         public void startSerial()
         {
-            if (isSending) { return; }
+            if (isSending) return;
 
             isSending = true;
 
-            // Start the thread to send serial data
+            Debug.WriteLine("Attempting to start fltSignal thread...");
+
             fltSignalThread = new Thread(() =>
             {
-                while (isSending)
+                try
                 {
-                    try
+                    if (!port.IsOpen)
                     {
-                        // Access joystick input in each iteration to get the latest data
+                        port.Open();
+                    }
+
+                    while (isSending)
+                    {
                         var inputs = joyInput.GetJoystickInputs();
-                        if (inputs == null || !inputs.ContainsKey("X") || !inputs.ContainsKey("Y"))
+                        if (inputs == null || !inputs.ContainsKey("X") || !inputs.ContainsKey("Y") || !inputs.ContainsKey("Trigger"))
                         {
-                            Debug.WriteLine("No joystick data available.");  // Debug output
-                            continue;  // Skip this iteration if no data is available
+                            Debug.WriteLine("No joystick data available.");
+                            continue;
                         }
 
-                        // Create joysSerial string with joystick X and Y values
-                        string joysSerial = $"X {inputs["X"]} Y {inputs["Y"]}";
-                        Debug.WriteLine($"Sending serial: {joysSerial}");  // Debug output
+                        // Get trigger state
+                        int triggerValue = inputs["Trigger"];
 
-                        // Ensure the port is open before writing to it
-                        if (!port.IsOpen)
-                        {
-                            Debug.WriteLine("Port is closed. Attempting to reopen...");
-                            try
-                            {
-                                port.Open();  // Try to reopen the port if it's closed
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine($"Failed to reopen port: {ex.Message}");
-                                continue;  // Skip this iteration if port can't be reopened
-                            }
-                        }
-
-                        // Send the latest joystick data
+                        // Format serial string
+                        string joysSerial = $"X {inputs["X"]} Y {inputs["Y"]} T {triggerValue}";
+                        Debug.WriteLine($"Sending serial: {joysSerial}");
                         port.WriteLine(joysSerial);
-                        Debug.WriteLine($"Sent: {joysSerial}");  // Debug output
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine($"Error: {e.Message}");
-                        StopSending();
-                    }
 
-                    // Sleep for a short duration before next loop iteration
-                    Thread.Sleep(50);
+                        if (!WaitForResponse("ACK_JOY", 100))
+                        {
+                            Debug.WriteLine("No ACK received, retrying...");
+                            continue;
+                        }
+
+                        port.WriteLine("REQ_DST");
+
+                        string distanceResponse = ReadLineWithTimeout(100);
+                        if (distanceResponse.StartsWith("DST "))
+                        {
+                            string distanceStr = distanceResponse.Substring(4);
+                            if (float.TryParse(distanceStr, out float distance))
+                            {
+                                Debug.WriteLine($"Distance {distance}");
+                            }
+                        }
+
+                        Thread.Sleep(50);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine($"Error: {e.Message}");
+                }
+                finally
+                {
+                    if (port.IsOpen)
+                    {
+                        port.Close();
+                    }
+                    isSending = false;
                 }
             });
 
+            // ✅ **Thread starts here, outside the declaration!**
             fltSignalThread.IsBackground = true;
             fltSignalThread.Start();
         }
 
 
-
-        public void StopSending()
+        private bool WaitForResponse(string expectedResponse, int timeoutMs)
         {
-            isSending = false;
-
-            if (fltSignalThread != null && fltSignalThread.IsAlive)
+            DateTime start = DateTime.Now;
+            while ((DateTime.Now - start).TotalMilliseconds < timeoutMs)
             {
-                fltSignalThread.Join();
+                if (port.BytesToRead > 0)
+                {
+                    string response = port.ReadLine().Trim();
+                    if (response == expectedResponse) return true;
+                }
+                Thread.Sleep(5);
             }
+            return false;
         }
 
-        public void Dispose()
+        private string ReadLineWithTimeout(int timeoutMs)
         {
-            StopSending();
-
-            if (port != null && port.IsOpen)
+            DateTime start = DateTime.Now;
+            while((DateTime.Now - start).TotalMilliseconds < timeoutMs)
             {
-                port.Close();
+                if(port.BytesToRead > 0)
+                {
+                    return port.ReadLine().Trim();
+                }
+                Thread.Sleep(5);
             }
+            return "";
         }
+
+
+        
     }
 
 
